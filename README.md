@@ -28,9 +28,8 @@ Handles input and output encoding:
 Also deals with base64 output correctly by aligning each emitted data chunk so that there are no dangling = characters:
 
 base64 通过对齐每个发出的数据块来正确处理输出，以便不存在 悬挂=字符：
-    
-    var stream = fs.createReadStream('myFile').pipe(strs('base64'))
 
+    var stream = fs.createReadStream('myFile').pipe(strs('base64'))
     var base64Str = ''
 
     stream.on('data', function(data) { base64Str += data })
