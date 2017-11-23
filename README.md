@@ -2,6 +2,17 @@
 nodejs大作业相关内容
 ## Todo
 读 StringStream.js 并分析
+
+## source
+[StringStream](https://github.com/mhart/StringStream)
+
+[StringStream.js源码](https://github.com/guwenjia/nodejs-Code-interpretation/blob/master/stringstream.js)
+
+[StringStream.js源码解读全文注释](https://github.com/guwenjia/nodejs-Code-interpretation/blob/master/stringstream-analysis.js)
+
+## Article
+待更新
+
 ## 选题：StringStream 
 将流解码为字符串正确的方法
 
@@ -38,12 +49,4 @@ base64 通过对齐每个发出的数据块来正确处理输出，以便不存�
          console.log('Original file is: ' + new Buffer(base64Str, 'base64'))
     })
 
-## source
-[StringStream](https://github.com/mhart/StringStream)
 
-[StringStream.js源码]()
-
-[StringStream.js源码解读全文注释]()
-
-## Article
-待更新
