@@ -37,3 +37,13 @@ base64 通过对齐每个发出的数据块来正确处理输出，以便不存�
          console.log('My base64 encoded file is: ' + base64Str) // Wouldn't work with setEncoding()
          console.log('Original file is: ' + new Buffer(base64Str, 'base64'))
     })
+
+## source
+[StringStream](https://github.com/mhart/StringStream)
+
+[StringStream.js源码]()
+
+[StringStream.js源码解读全文注释]()
+
+## Article
+待更新
