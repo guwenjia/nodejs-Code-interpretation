@@ -22,14 +22,18 @@ module.exports.AlignedStringDecoder = AlignedStringDecoder
 function StringStream(from, to) {
   if (!(this instanceof StringStream)) return new StringStream(from, to)
 
+  //调用stream中的方法
   Stream.call(this)
 
+  //若form为null，设置from为 utf-8
   if (from == null) from = 'utf8'
   
   //可读 可写
   this.readable = this.writable = true 
   this.paused = false
-  this.toEncoding = (to == null ? from : to)
+  //参数to为空，this.toEncoding = from
+  this.toEncoding = (to == null ? from : to) 
+  //参数to为空，this.fromEncoding = ''
   this.fromEncoding = (to == null ? '' : from)
   this.decoder = new AlignedStringDecoder(this.toEncoding)
 }
@@ -38,26 +42,36 @@ function StringStream(from, to) {
 //从一个构造函数中继承原型方法到另一个
 //util.inherits(constructor, superConstructor)
 //constructor 的原型会被设置到一个从 superConstructor 创建的新对象上。
+//SringStream 继承自stream
 util.inherits(StringStream, Stream)
 
 
 //为StringStream添加write方法 
 StringStream.prototype.write = function(data) {
+  
+  //new Error 新建一个 Error 实例，并设置 error.message 属性以提供文本信息。 不可写时输出'stream not writable'
+  //error.code 属性是标识错误类别的字符标签。 
+  //触发'error'事件 传入err参数
   if (!this.writable) {
     var err = new Error('stream not writable')
     err.code = 'EPIPE'
     this.emit('error', err)
     return false
   }
+  
+  //Buffer.isBuffer(data)  如果 data 是一个 Buffer 则返回 true ，否则返回 false 。
+  //data 是一个 Buffer，  解码 data 成一个字符串。
   if (this.fromEncoding) {
     if (Buffer.isBuffer(data)) data = data.toString()
     data = new Buffer(data, this.fromEncoding)
   }
   var string = this.decoder.write(data)
+  //string有值，将string作为参数 触发data事件
   if (string.length) this.emit('data', string)
   return !this.paused
 }
 
+//向StringStream原型 添加flush方法
 StringStream.prototype.flush = function() {
   if (this.decoder.flush) {
     var string = this.decoder.flush()
@@ -65,6 +79,8 @@ StringStream.prototype.flush = function() {
   }
 }
 
+//添加end方法
+//如果既不可读又不可写
 StringStream.prototype.end = function() {
   if (!this.writable && !this.readable) return
   this.flush()
@@ -72,7 +88,7 @@ StringStream.prototype.end = function() {
   this.writable = this.readable = false
   this.destroy()
 }
-
+//添加destroy方法
 StringStream.prototype.destroy = function() {
   this.decoder = null
   this.writable = this.readable = false
@@ -99,6 +115,7 @@ function AlignedStringDecoder(encoding) {
       break
   }
 }
+//AlignedStringDecoder 继承自 StringDecoder
 util.inherits(AlignedStringDecoder, StringDecoder)
 
 AlignedStringDecoder.prototype.flush = function() {
