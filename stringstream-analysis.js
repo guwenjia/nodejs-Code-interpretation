@@ -95,16 +95,21 @@ StringStream.prototype.destroy = function() {
   this.emit('close')
 }
 
+//添加pause方法
 StringStream.prototype.pause = function() {
   this.paused = true
 }
-
+//添加resume方法
+//flowing 模式的流停止触发'data'事件时，触发'drain'事件
+//
 StringStream.prototype.resume = function () {
   if (this.paused) this.emit('drain')
   this.paused = false
 }
 
 function AlignedStringDecoder(encoding) {
+  //继承自StringDecoder，调用StringDecoder的方法 
+  //
   StringDecoder.call(this, encoding)
 
   switch (this.encoding) {
