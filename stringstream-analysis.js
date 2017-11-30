@@ -1,5 +1,5 @@
 //   stringstream
-//
+//    将流解码为字符串 
 //
 
 //引入util模块  util 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。
@@ -22,19 +22,22 @@ module.exports.AlignedStringDecoder = AlignedStringDecoder
 function StringStream(from, to) {
   if (!(this instanceof StringStream)) return new StringStream(from, to)
 
-  //调用stream中的方法
+  //调用stream中的方法 (stream的继承)
   Stream.call(this)
 
-  //若form为null，设置from为 utf-8
+  //若form为null，设置from为 utf-8 
   if (from == null) from = 'utf8'
   
   //可读 可写
   this.readable = this.writable = true 
   this.paused = false
-  //参数to为空，this.toEncoding = from
+  //参数to为空，this.toEncoding = from  不为空this.toEncoding=to
   this.toEncoding = (to == null ? from : to) 
-  //参数to为空，this.fromEncoding = ''
+  //参数to为空，this.fromEncoding = ''  不为空fromEncoding=from
+  //实际运用中 传入两个参数时，第一个为输入数据格式，第二个为输出格式；
+  //传入参数时只传入一个实参，则表示转换为该编码格式(toEncoding) 
   this.fromEncoding = (to == null ? '' : from)
+  //实例化一个AlignedStringDecoder
   this.decoder = new AlignedStringDecoder(this.toEncoding)
 }
 
@@ -49,22 +52,26 @@ util.inherits(StringStream, Stream)
 //为StringStream添加write方法 
 StringStream.prototype.write = function(data) {
   
-  //new Error 新建一个 Error 实例，并设置 error.message 属性以提供文本信息。 不可写时输出'stream not writable'
-  //error.code 属性是标识错误类别的字符标签。 
-  //触发'error'事件 传入err参数
+  
   if (!this.writable) {
+    //new Error 新建一个 Error 实例，并设置 error.message 属性以提供文本信息。 不可写时输出'stream not writable'
+    //error.code 属性是标识错误类别的字符标签。 
+    //触发'error'事件 传入err参数
     var err = new Error('stream not writable')
     err.code = 'EPIPE'
     this.emit('error', err)
     return false
   }
   
-  //Buffer.isBuffer(data)  如果 data 是一个 Buffer 则返回 true ，否则返回 false 。
-  //data 是一个 Buffer，  解码 data 成一个字符串。
+  
   if (this.fromEncoding) {
-    if (Buffer.isBuffer(data)) data = data.toString()
+     //Buffer.isBuffer(data)  如果 data 是一个 Buffer 则返回 true ，否则返回 false 。
+     //data 是一个 Buffer，  解码 data 成字符串。data = data.toString()
+    if (Buffer.isBuffer(data))
     data = new Buffer(data, this.fromEncoding)
   }
+  //this.decoder = new AlignedStringDecoder(this.toEncoding)
+  //this.decoder.write()方法见下面
   var string = this.decoder.write(data)
   //string有值，将string作为参数 触发data事件
   if (string.length) this.emit('data', string)
@@ -80,8 +87,9 @@ StringStream.prototype.flush = function() {
 }
 
 //添加end方法
-//如果既不可读又不可写
+
 StringStream.prototype.end = function() {
+  //如果既不可读又不可写
   if (!this.writable && !this.readable) return
   this.flush()
   this.emit('end')
@@ -100,16 +108,17 @@ StringStream.prototype.pause = function() {
   this.paused = true
 }
 //添加resume方法
-//flowing 模式的流停止触发'data'事件时，触发'drain'事件
-//
 StringStream.prototype.resume = function () {
+  //flowing 模式的流停止触发'data'事件时，触发'drain'事件
+  //
   if (this.paused) this.emit('drain')
   this.paused = false
 }
 
+//////////////////////////////////////////////////////////
+//定义 AlignedStringDecoder
 function AlignedStringDecoder(encoding) {
   //继承自StringDecoder，调用StringDecoder的方法 
-  //
   StringDecoder.call(this, encoding)
 
   switch (this.encoding) {
