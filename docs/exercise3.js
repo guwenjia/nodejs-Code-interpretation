@@ -1,4 +1,8 @@
 //base64
+var fs   = require('fs')
+var zlib = require('zlib')
+var strs = require('stringstream')
+
 var stream = fs.createReadStream('myFile').pipe(strs('base64'))
 var base64Str = ''
 
