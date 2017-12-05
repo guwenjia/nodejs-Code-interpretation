@@ -26,6 +26,7 @@ function StringStream(from, to) {
   Stream.call(this)
 
   //若form为null，设置from为 utf-8 
+  //第一个参数为空，默认为utf-8
   if (from == null) from = 'utf8'
   
   //可读 可写
@@ -48,7 +49,7 @@ function StringStream(from, to) {
 //SringStream 继承自stream
 util.inherits(StringStream, Stream)
 
-
+//////////////////////////////
 //为StringStream添加write方法 
 StringStream.prototype.write = function(data) {
   
@@ -68,10 +69,13 @@ StringStream.prototype.write = function(data) {
      //Buffer.isBuffer(data)  如果 data 是一个 Buffer 则返回 true ，否则返回 false 。
      //data 是一个 Buffer，  解码 data 成字符串。data = data.toString()
     if (Buffer.isBuffer(data))
-    data = new Buffer(data, this.fromEncoding)
+    data = new Buffer(data, this.fromEncoding)//new Buffer(要编码的字符串,string 的字符串编码)  将data编码为fromEncoding
+                                             //new Buffer(string[, encoding])是废弃的  新的--Buffer.from(string[, encoding])
   }
-  //this.decoder = new AlignedStringDecoder(this.toEncoding)
-  //this.decoder.write()方法见下面
+  //this.decoder = new (this.toEncoding)
+  //this.decoder.write()见下面  
+  //AlignedStringDecoder继承自StringDecoder，调用StringDecoder的方法   
+  //AlignedStringDecoder.write([buffer])返回一个解码后的字符串，buffer :包含待解码字节的 Buffer。
   var string = this.decoder.write(data)
   //string有值，将string作为参数 触发data事件
   if (string.length) this.emit('data', string)
@@ -86,8 +90,8 @@ StringStream.prototype.flush = function() {
   }
 }
 
-//添加end方法
-
+///////////////////////////////
+//为StringStream添加end方法
 StringStream.prototype.end = function() {
   //如果既不可读又不可写
   if (!this.writable && !this.readable) return
@@ -118,11 +122,12 @@ StringStream.prototype.resume = function () {
 //////////////////////////////////////////////////////////
 //定义 AlignedStringDecoder
 function AlignedStringDecoder(encoding) {
-  //继承自StringDecoder，调用StringDecoder的方法 
+  //继承自StringDecoder，调用StringDecoder的方法   
+  //StringDecoder.write([buffer])返回一个解码后的字符串，buffer :包含待解码字节的 Buffer。
   StringDecoder.call(this, encoding)
 
   switch (this.encoding) {
-    case 'base64':
+    case 'base64': //this.encoding = base64
       this.write = alignedWrite
       this.alignedBuffer = new Buffer(3)
       this.alignedBytes = 0
@@ -132,6 +137,7 @@ function AlignedStringDecoder(encoding) {
 //AlignedStringDecoder 继承自 StringDecoder
 util.inherits(AlignedStringDecoder, StringDecoder)
 
+//为AlignedStringDecoder添加flush事件
 AlignedStringDecoder.prototype.flush = function() {
   if (!this.alignedBuffer || !this.alignedBytes) return ''
   var leftover = this.alignedBuffer.toString(this.encoding, 0, this.alignedBytes)
