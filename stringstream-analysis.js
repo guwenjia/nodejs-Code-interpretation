@@ -1,5 +1,5 @@
-/*   stringstream    */
-/*    将流解码为字符串 */
+//    stringstream
+//    将流解码为字符串
 
 /**
  *
