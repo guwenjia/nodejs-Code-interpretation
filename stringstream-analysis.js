@@ -1,23 +1,45 @@
-//   stringstream
-//    将流解码为字符串 
-//
+/*   stringstream    */
+/*    将流解码为字符串 */
 
-//引入util模块  util 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。
+/**
+ *
+ util模块 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。
+ *
+ @module util
+ */
 var util = require('util')
 
-//引入stream模块  流（stream）在 Node.js 中是处理流数据的抽象接口（abstract interface）。 
-//stream 模块提供了基础的 API 。使用这些 API 可以很容易地来构建实现流接口的对象。
+/**
+ *
+ stream模块  流（stream）在 Node.js 中是处理流数据的抽象接口（abstract interface）。 
+ stream 模块提供了基础的 API 。使用这些 API 可以很容易地来构建实现流接口的对象。
+ *
+ @module stream
+ */
 var Stream = require('stream')
 
-//引入string_decoder模块（字符串解码器） 该string_decoder模块提供了一种用于将Buffer对象解码为字符串的API，以保留已编码的多字节UTF-8和UTF-16字符的方式。
-//string_decoder模块用于将Buffer转成对应的字符串。使用者通过调用stringDecoder.write(buffer)，可以获得buffer对应的字符串。
+/**
+ *
+ string_decoder模块（字符串解码器） 该string_decoder模块提供了一种用于将Buffer对象解码为字符串的API，以保留已编码的多字节UTF-8和UTF-16字符的方式。
+string_decoder模块用于将Buffer转成对应的字符串。使用者通过调用stringDecoder.write(buffer)，可以获得buffer对应的字符串。
+ *
+ @module string_decoder
+ */
 var StringDecoder = require('string_decoder').StringDecoder
 
 //模块接口 暴露StringStream 和 AlignedStringDecoder
 module.exports = StringStream
 module.exports.AlignedStringDecoder = AlignedStringDecoder
 
-//定义 StringStream
+/**
+ *
+ 功能：将流解码为字符串
+ *
+ @param {string} from, to 输入编码类型,输出编码类型
+ *
+ @return { string} 返回 输出编码类型 的字符串
+ */
+
 //this 客户端为 `window`, 服务端(node) 中为 `exports`
 function StringStream(from, to) {
   if (!(this instanceof StringStream)) return new StringStream(from, to)
@@ -121,6 +143,7 @@ StringStream.prototype.resume = function () {
 
 //////////////////////////////////////////////////////////
 //定义 AlignedStringDecoder
+//功能：base64编码 通过对齐每个发出的数据块来正确处理输出
 function AlignedStringDecoder(encoding) {
   //继承自StringDecoder，调用StringDecoder的方法   
   //StringDecoder.write([buffer])返回一个解码后的字符串，buffer :包含待解码字节的 Buffer。
@@ -137,7 +160,7 @@ function AlignedStringDecoder(encoding) {
 //AlignedStringDecoder 继承自 StringDecoder
 util.inherits(AlignedStringDecoder, StringDecoder)
 
-//为AlignedStringDecoder添加flush事件
+//为AlignedStringDecoder添加flush方法
 AlignedStringDecoder.prototype.flush = function() {
   if (!this.alignedBuffer || !this.alignedBytes) return ''
   var leftover = this.alignedBuffer.toString(this.encoding, 0, this.alignedBytes)
