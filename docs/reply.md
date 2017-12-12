@@ -31,7 +31,7 @@ eg:
 案例二：读取Myfile文件，将其内容转换为hex，再转换为base64编码格式输出
 ![ex2](https://github.com/guwenjia/nodejs-Code-interpretation/blob/master/docs/images/ex2.png)
 
-案例三：读取Myfile文件，将其内容转换为base64，再转换为base64编码格式输出
+案例三：读取Myfile文件，将其内容转换为base64编码格式输出
 ![ex3](https://github.com/guwenjia/nodejs-Code-interpretation/blob/master/docs/images/ex3.1.png)
 > Base64编码说明    
 > Base64编码要求把3个8位字节（3*8=24）转化为4个6位的字节（4*6=24），之后在6位的前面补两个0，形成8位一个字节的形式。 如果剩下的字符不足3个字节，则用0填充，输出字符使用'='，因此编码后输出的文本末尾可能会出现1或2个'='。
