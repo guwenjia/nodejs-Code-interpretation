@@ -1,30 +1,15 @@
 //    stringstream
 //    将流解码为字符串
 
-/**
- *
- util模块 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。
- *
- @module util
- */
+//util模块 是一个Node.js 核心模块，提供常用函数的集合，用于弥补核心JavaScript 的功能 过于精简的不足。
 var util = require('util')
 
-/**
- *
- stream模块  流（stream）在 Node.js 中是处理流数据的抽象接口（abstract interface）。 
- stream 模块提供了基础的 API 。使用这些 API 可以很容易地来构建实现流接口的对象。
- *
- @module stream
- */
+ //stream模块  流（stream）在 Node.js 中是处理流数据的抽象接口（abstract interface）。 
+ //stream 模块提供了基础的 API 。使用这些 API 可以很容易地来构建实现流接口的对象。
 var Stream = require('stream')
 
-/**
- *
- string_decoder模块（字符串解码器） 该string_decoder模块提供了一种用于将Buffer对象解码为字符串的API，以保留已编码的多字节UTF-8和UTF-16字符的方式。
-string_decoder模块用于将Buffer转成对应的字符串。使用者通过调用stringDecoder.write(buffer)，可以获得buffer对应的字符串。
- *
- @module string_decoder
- */
+ //string_decoder模块（字符串解码器） 该string_decoder模块提供了一种用于将Buffer对象解码为字符串的API，以保留已编码的多字节UTF-8和UTF-16字符的方式。
+//string_decoder模块用于将Buffer转成对应的字符串。使用者通过调用stringDecoder.write(buffer)，可以获得buffer对应的字符串。
 var StringDecoder = require('string_decoder').StringDecoder
 
 //模块接口 暴露StringStream 和 AlignedStringDecoder
@@ -86,7 +71,7 @@ StringStream.prototype.write = function(data) {
     return false
   }
   
-  
+  //将data编码为fromEcoding
   if (this.fromEncoding) {
      //Buffer.isBuffer(data)  如果 data 是一个 Buffer 则返回 true ，否则返回 false 。
      //data 是一个 Buffer，  解码 data 成字符串。data = data.toString()
@@ -94,17 +79,19 @@ StringStream.prototype.write = function(data) {
     data = new Buffer(data, this.fromEncoding)//new Buffer(要编码的字符串,string 的字符串编码)  将data编码为fromEncoding
                                              //new Buffer(string[, encoding])是废弃的  新的--Buffer.from(string[, encoding])
   }
-  //this.decoder = new (this.toEncoding)
-  //this.decoder.write()见下面  
+ 
+ //将fromEcoding编码格式的 data 转化成 toEcoding格式 
+ //this.decoder = new AlignedStringDecoder(this.toEncoding)
+  //this.decoder.write()
   //AlignedStringDecoder继承自StringDecoder，调用StringDecoder的方法   
   //AlignedStringDecoder.write([buffer])返回一个解码后的字符串，buffer :包含待解码字节的 Buffer。
   var string = this.decoder.write(data)
-  //string有值，将string作为参数 触发data事件
+  //string有值，将string作为参数   触发data事件   ??
   if (string.length) this.emit('data', string)
   return !this.paused
 }
 
-//向StringStream原型 添加flush方法
+//向StringStream原型 添加flush方法  ??
 StringStream.prototype.flush = function() {
   if (this.decoder.flush) {
     var string = this.decoder.flush()
@@ -129,11 +116,11 @@ StringStream.prototype.destroy = function() {
   this.emit('close')
 }
 
-//添加pause方法
+//添加pause方法  暂停执行
 StringStream.prototype.pause = function() {
   this.paused = true
 }
-//添加resume方法
+//添加resume方法  恢复执行
 StringStream.prototype.resume = function () {
   //flowing 模式的流停止触发'data'事件时，触发'drain'事件
   //
@@ -143,16 +130,16 @@ StringStream.prototype.resume = function () {
 
 //////////////////////////////////////////////////////////
 //定义 AlignedStringDecoder
-//功能：base64编码 通过对齐每个发出的数据块来正确处理输出
 function AlignedStringDecoder(encoding) {
   //继承自StringDecoder，调用StringDecoder的方法   
-  //StringDecoder.write([buffer])返回一个解码后的字符串，buffer :包含待解码字节的 Buffer。
+  //StringDecoder.write([buffer])返回一个解码后的字符串，buffer :包含待解码字节的 Buffer
   StringDecoder.call(this, encoding)
 
+ //base64编码 通过对齐每个发出的数据块来正确处理输出
   switch (this.encoding) {
     case 'base64': //this.encoding = base64
       this.write = alignedWrite
-      this.alignedBuffer = new Buffer(3)
+      this.alignedBuffer = new Buffer(3) //new Buffer(size)  (size--Number 类型   分配一个新的3个8位字节 buffer)
       this.alignedBytes = 0
       break
   }
@@ -162,12 +149,16 @@ util.inherits(AlignedStringDecoder, StringDecoder)
 
 //为AlignedStringDecoder添加flush方法
 AlignedStringDecoder.prototype.flush = function() {
-  if (!this.alignedBuffer || !this.alignedBytes) return ''
-  var leftover = this.alignedBuffer.toString(this.encoding, 0, this.alignedBytes)
+ if (!this.alignedBuffer || !this.alignedBytes) return ''
+ 
+ //根据 encoding 指定的字符编码解码 this.alignedBuffer成一个字符串，返回this.alignedBytes
+ //使用encoding编码，开始解码的字节偏移量为0，返回this.alignedBytes    api: buf.toString([encoding[, start[, end]]])
+ var leftover = this.alignedBuffer.toString(this.encoding, 0, this.alignedBytes)
   this.alignedBytes = 0
   return leftover
 }
 
+//对齐编码
 function alignedWrite(buffer) {
   var rem = (this.alignedBytes + buffer.length) % this.alignedBuffer.length
   if (!rem && !this.alignedBytes) return buffer.toString(this.encoding)
