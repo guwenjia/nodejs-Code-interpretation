@@ -40,19 +40,30 @@ eg:
 
 #### 5.项目代码分析
 1. 代码模块中有哪些函数？各个函数都是做什么的？
+
 streamstring() 将流转换成字符串
 AlignedStringDecoder()  将buffer对齐输出为字符串
 
 2. 代码中是否有可以改进的地方？
+
 有些API是旧的，如new Buffer(string[, encoding])是废弃的  新的--Buffer.from(string[, encoding])
 添加测试脚本
 
 3.代码的可读性如何？结构清晰吗？编码风格如何？
+
 代码可读性高;
+
 整体结构清晰；
+
 通过添加不同方法实现不同功能；
 
 #### 6.项目文档分析
 1. README.md文档 
 2. stringstream.js文件
+
     数据结构：数值、字符串型
+3. 所需模块：
+
++ var util = require('util')
++ var Stream = require('stream')
++ var StringDecoder = require('string_decoder').StringDecoder
