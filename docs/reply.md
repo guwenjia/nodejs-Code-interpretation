@@ -61,9 +61,9 @@ AlignedStringDecoder()  将buffer对齐输出为字符串
 1. README.md文档 
 2. stringstream.js文件
 
-    数据结构：数值、字符串型
-3. 所需模块：
+（1）数据结构：数值、字符串型
 
+（2）所需模块：
 + var util = require('util')
 + var Stream = require('stream')
 + var StringDecoder = require('string_decoder').StringDecoder
